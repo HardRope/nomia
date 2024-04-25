@@ -23,25 +23,21 @@ def quiz_view(request, step):
 		request.session.modified = True
 		step += 1
 		return redirect('steps', step=step)
+
 	else:
 		catering_type = request.session['type']
-		
 		type_questions = Question.objects.filter(catering__name=catering_type)
+
 		try:
 			question = type_questions[step-1]
 		except IndexError:
-			return redirect('lk')
-			# options = request.session['options']
-			# catering_type = request.session['type']
-			# return render(request, 'lk.html', context={'options': options, 'catering_type': catering_type})
-
+			return redirect('confirm')
 
 		options = Option.objects.filter(question=question).filter(catering__name=catering_type)
-
 		form = OptionForm(options=options)
-	return render(request, 'index.html', {'form': form})
+		return render(request, 'index.html', {'form': form})
 
-def lk_view(request):
+def confirm_view(request):
 	options = request.session['options']
 	catering_type = request.session['type']
-	return render(request, 'lk.html', context={'options': options, 'catering_type': catering_type})
+	return render(request, 'confirm.html', context={'options': options, 'catering_type': catering_type})
