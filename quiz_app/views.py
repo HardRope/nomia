@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 
 
 from .models import CateringType, Question, Option
-from .forms import CateringTypeForm, OptionForm, UserRegisterForm
+from .forms import CateringTypeForm, OptionForm, MultipleOptionForm, UserRegisterForm
 
 
 class RegisterView(CreateView):
@@ -40,7 +40,7 @@ def get_type_view(request):
 
 def quiz_view(request, step):
 	if request.method == 'POST':
-		option = request.POST.get('option')
+		option = request.POST.getlist('option')
 		request.session['options'][f'step_{step}'] = option
 		request.session.modified = True
 		step += 1
@@ -56,7 +56,10 @@ def quiz_view(request, step):
 			return redirect('confirm')
 
 		options = Option.objects.filter(question=question).filter(catering__name=catering_type)
-		form = OptionForm(options=options)
+		if question.multiple:
+				form = MultipleOptionForm(options=options)
+		else:
+				form = OptionForm(options=options)
 		return render(request, 'index.html', {'form': form})
 
 

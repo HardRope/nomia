@@ -45,3 +45,12 @@ class OptionForm(forms.Form):
   	def __init__(self,options,*args,**kwargs):
 	  	  super().__init__(*args,**kwargs)
 	  	  self.fields['option'].choices = [(option.text, option.text) for option in options]
+
+
+class MultipleOptionForm(forms.Form):
+		option = forms.ChoiceField(
+				widget=forms.CheckboxSelectMultiple
+				)
+		def __init__(self,options,*args,**kwargs):
+	  	  super().__init__(*args,**kwargs)
+	  	  self.fields['option'].choices = [(option.text, option.text) for option in options]
