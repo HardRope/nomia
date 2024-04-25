@@ -1,8 +1,29 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.http import HttpResponseRedirect
+from django.views.generic import CreateView
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+
 
 from .models import CateringType, Question, Option
-from .forms import CateringTypeForm, OptionForm
+from .forms import CateringTypeForm, OptionForm, UserRegisterForm
+
+
+class RegisterView(CreateView):
+    form_class = UserRegisterForm
+    template_name = 'login.html'
+    success_url = reverse_lazy('type')
+
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password1')
+        user = authenticate(self.request, username=username, password=password)
+        login(request=self.request, user=user)
+        return redirect('type')
+
 
 def get_type_view(request):
   if request.method == "POST":
@@ -15,6 +36,7 @@ def get_type_view(request):
   else:
     form = CateringTypeForm()
     return render(request, 'index.html', {'form': form})
+
 
 def quiz_view(request, step):
 	if request.method == 'POST':
@@ -36,6 +58,7 @@ def quiz_view(request, step):
 		options = Option.objects.filter(question=question).filter(catering__name=catering_type)
 		form = OptionForm(options=options)
 		return render(request, 'index.html', {'form': form})
+
 
 def confirm_view(request):
 	options = request.session['options']
