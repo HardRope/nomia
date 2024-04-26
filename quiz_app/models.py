@@ -58,6 +58,11 @@ class Option(models.Model):
 
 class Result(models.Model):
     text = models.TextField('данные опроса')
+
+    catering_type = models.ManyToManyField(
+        'CateringType',
+        related_name='results',
+    )
     patricipiant = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
