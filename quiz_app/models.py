@@ -15,7 +15,7 @@ class CateringType(models.Model):
 
 class Question(models.Model):
     text = models.CharField('вопрос', max_length=255)
-    multiple = models.BooleanField(default=False)
+    multiple = models.BooleanField('несколько ответов', default=False)
 
     catering = models.ManyToManyField(
         'CateringType',
