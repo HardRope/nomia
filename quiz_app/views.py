@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.http import HttpResponseRedirect
 from django.views.generic import CreateView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -26,44 +25,48 @@ class RegisterView(CreateView):
 
 
 def get_type_view(request):
-  if request.method == "POST":
-    form = CateringTypeForm(request.POST)
-    type =  request.POST.get('type')
-    request.session['type'] = type
-    request.session['options'] = {}
-    print(request)
-    return redirect('steps', step=1)
-  else:
-    form = CateringTypeForm()
-    return render(request, 'index.html', {'form': form})
+    if request.method == "POST":
+        form = CateringTypeForm(request.POST)
+        type = request.POST.get('type')
+        request.session['type'] = type
+        request.session['options'] = {}
+        print(request)
+        return redirect('steps', step=1)
+    else:
+        form = CateringTypeForm()
+        return render(request, 'index.html', {'form': form})
 
 
 def quiz_view(request, step):
-	if request.method == 'POST':
-		option = request.POST.getlist('option')
-		request.session['options'][f'step_{step}'] = option
-		request.session.modified = True
-		step += 1
-		return redirect('steps', step=step)
+    if request.method == 'POST':
+        option = request.POST.getlist('option')
+        request.session['options'][f'step_{step}'] = option
+        request.session.modified = True
+        step += 1
+        return redirect('steps', step=step)
 
-	else:
-		catering_type = request.session['type']
-		type_questions = Question.objects.filter(catering__name=catering_type)
+    else:
+        catering_type = request.session['type']
+        type_questions = Question.objects.filter(catering__name=catering_type)
 
-		try:
-			question = type_questions[step-1]
-		except IndexError:
-			return redirect('confirm')
+    try:
+        question = type_questions[step - 1]
+    except IndexError:
+        return redirect('confirm')
 
-		options = Option.objects.filter(question=question).filter(catering__name=catering_type)
-		if question.multiple:
-				form = MultipleOptionForm(options=options)
-		else:
-				form = OptionForm(options=options)
-		return render(request, 'index.html', {'form': form})
+    options = Option.objects.filter(question=question).filter(catering__name=catering_type)
+    if question.multiple:
+        form = MultipleOptionForm(options=options)
+    else:
+        form = OptionForm(options=options)
+        return render(request, 'index.html', {'form': form})
 
 
 def confirm_view(request):
-	options = request.session['options']
-	catering_type = request.session['type']
-	return render(request, 'confirm.html', context={'options': options, 'catering_type': catering_type})
+    options = request.session['options']
+    catering_type = request.session['type']
+    return render(
+        request,
+        'confirm.html',
+        context={'options': options, 'catering_type': catering_type}
+    )
