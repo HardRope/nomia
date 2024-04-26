@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
 
-from .models import CateringType, Question, Option
+from .models import CateringType, Question, Option, Result
 from .forms import CateringTypeForm, OptionForm, MultipleOptionForm, UserRegisterForm
 
 
@@ -16,7 +16,6 @@ class RegisterView(CreateView):
     success_url = reverse_lazy('type')
 
     def form_valid(self, form):
-        print(form.cleaned_data)
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password1')
         user = authenticate(self.request, username=username, password=password)
@@ -24,19 +23,20 @@ class RegisterView(CreateView):
         return redirect('type')
 
 
+@login_required
 def get_type_view(request):
     if request.method == "POST":
         form = CateringTypeForm(request.POST)
         type = request.POST.get('type')
         request.session['type'] = type
         request.session['options'] = {}
-        print(request)
         return redirect('steps', step=1)
     else:
         form = CateringTypeForm()
         return render(request, 'index.html', {'form': form})
 
 
+@login_required
 def quiz_view(request, step):
     if request.method == 'POST':
         option = request.POST.getlist('option')
@@ -62,9 +62,23 @@ def quiz_view(request, step):
         return render(request, 'index.html', {'form': form})
 
 
+@login_required
 def confirm_view(request):
+    user = User.objects.get(username=request.user)
+
     options = request.session['options']
     catering_type = request.session['type']
+    catering_obj = CateringType.objects.get(name=catering_type)
+    result_text = f'{catering_type}\n{options}'
+
+    quiz_result = Result.objects.create(
+        patricipiant=user,
+        text=result_text
+    )
+    quiz_result.save()
+    quiz_result.catering_type.add(catering_obj)
+    quiz_result.save()
+
     return render(
         request,
         'confirm.html',
