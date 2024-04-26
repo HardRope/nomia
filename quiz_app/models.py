@@ -55,3 +55,17 @@ class Option(models.Model):
     def __str__(self):
         return self.text
 
+
+class Result(models.Model):
+    text = models.TextField('данные опроса')
+    patricipiant = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='results')
+
+    class Meta:
+        verbose_name = 'результат опроса'
+        verbose_name_plural = 'результаты опросов'
+
+    def __str__(self):
+        return f'{self.patricipiant} -- {self.text[:20]}'
