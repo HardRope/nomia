@@ -17,3 +17,10 @@ class QuestionAdmin(admin.ModelAdmin):
 @admin.register(Option)
 class OptionAdmin(admin.ModelAdmin):
 	list_display = ['text', 'question',]
+
+@admin.register(Result)
+class ResultAdmin(admin.ModelAdmin):
+    list_display = ['get_user', 'text']
+
+    def get_user(self, obj):
+        return obj.patricipiant.username
