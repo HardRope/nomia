@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import CateringType
 from .models import Question
 from .models import Option
+from .models import Result
 
 @admin.register(CateringType)
 class CateringTypeAdmin(admin.ModelAdmin):
